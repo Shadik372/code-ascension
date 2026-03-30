@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 
 const PomodoroBoss = ({ onDefeatBoss }) => {
-  const BOSS_TIME = 25 * 60; // 25 minutes in seconds
+  const BOSS_TIME =  60 * 60; // 25 minutes in seconds
   const XP_REWARD = 100; // Big reward for deep work
 
   const [timeLeft, setTimeLeft] = useState(BOSS_TIME);
