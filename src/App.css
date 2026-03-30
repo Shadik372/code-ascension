@@ -1,3 +1,5 @@
+@import "tailwindcss";
+
 :root {
   --bg-color: #0b0c10;
   --card-bg: rgba(30, 34, 45, 0.7);
@@ -12,13 +14,13 @@
   --border-color: rgba(255, 255, 255, 0.08);
 }
 body {
-  background: radial-gradient(circle at top, #161824 0%, var(--bg-color) 100%);
-  color: var(--text-main);
-  font-family: 'Rajdhani', sans-serif; /* The new RPG Font! */
-  font-size: 1.1em;
-  min-height: 100vh;
-  margin: 0;
-  padding: 0;
+  @apply bg-slate-950 text-slate-200 overflow-x-hidden;
+  /* Premium radial gradient + faint grid */
+  background-image: 
+    radial-gradient(circle at top, rgba(30, 27, 75, 0.4) 0%, theme('colors.slate.950') 100%),
+    linear-gradient(to right, rgba(255, 255, 255, 0.03) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(255, 255, 255, 0.03) 1px, transparent 1px);
+  background-size: 100% 100%, 40px 40px, 40px 40px;
 }
 .app-container {
   max-width: 800px;
@@ -336,19 +338,15 @@ button.btn-delete:hover { background: #ff1744; }
   100% { background-position: 0% 50%; }
 }
 
-/* Custom RPG Scrollbar */
+/* Custom Webkit Scrollbar */
 ::-webkit-scrollbar {
   width: 8px;
 }
 ::-webkit-scrollbar-track {
-  background: var(--bg-color);
+  @apply bg-slate-950;
 }
 ::-webkit-scrollbar-thumb {
-  background: #333;
-  border-radius: 4px;
-}
-::-webkit-scrollbar-thumb:hover {
-  background: var(--accent);
+  @apply bg-slate-800 rounded-full hover:bg-indigo-500 transition-colors;
 }
 
 /* =========================================
