@@ -7,6 +7,7 @@ import PomodoroBoss from './components/PomodoroBoss';
 import StatsChart from './components/StatsChart';
 import LootShop from './components/LootShop';
 import ClassAwakening from './components/ClassAwakening';
+import FocusTimer from './components/FocusTimer';
 import './App.css';
 
 // XP threshold logic
@@ -129,6 +130,19 @@ function App() {
     setXp(newXp);
   };
 
+  const handleSessionComplete = (xpReward) => {
+  const finalXp = calculateXpWithBonus(xpReward, 'Focus', 'Hard', 'timer'); 
+  const newXp = xp + finalXp;
+  const newLevelData = getLevelData(newXp);
+
+  if (newLevelData.level > level) {
+    alert(`🎉 LEVEL UP! You are now Level ${newLevelData.level}!`);
+  }
+  setXp(newXp);
+  incrementStreak(); // Optionally reward a streak bump for a full 90-min session!
+  alert(`🧠 Full 90-Minute Protocol Complete! +${finalXp} XP Awarded.`);
+};
+
   const activeQuests = quests.filter(q => !q.completed);
   const completedQuests = quests.filter(q => q.completed);
   
@@ -219,7 +233,8 @@ function App() {
 
           {/* FIX: Re-added the missing components to the Sidebar */}
           <motion.div variants={itemVariants} className="space-y-8">
-            <PomodoroBoss onDefeatBoss={handleBossDefeat} />
+
+            <FocusTimer onSessionComplete={handleSessionComplete} />
             <LootShop availableGold={availableGold} onBuyReward={handleBuyReward} />
             <StatsChart completedQuests={completedQuests} />
           </motion.div>
