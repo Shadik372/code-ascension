@@ -6,6 +6,7 @@
   --text-main: #e0e6ed;
   --text-muted: #8b949e;
   --accent: #6200ea;
+  --accent-hover: #bd00ff; /* <--- ADD THIS LINE (Lighter Purple) */
   --accent-glow: rgba(98, 0, 234, 0.5);
   --success: #00e676;
   --danger: #ff1744;
@@ -132,11 +133,33 @@ button {
   border-radius: 4px;
   transition: background 0.2s;
 }
-button:hover { background: var(--accent-hover); }
-button.btn-complete { background: var(--success); }
-button.btn-complete:hover { background: #00e676; }
-button.btn-delete { background: var(--danger); padding: 5px 10px; }
-button.btn-delete:hover { background: #ff1744; }
+/* Make sure default buttons use the new variable */
+button:hover { 
+  background: var(--accent-hover); 
+  box-shadow: 0 0 15px rgba(189, 0, 255, 0.6); /* This is #bd00ff converted to rgb for the glow */
+}
+
+/* Base Success Button */
+button.btn-complete { 
+  background: var(--success); 
+}
+/* Brighter Neon Green for Hover */
+button.btn-complete:hover { 
+  background: #69f0ae; 
+  box-shadow: 0 0 15px rgba(105, 240, 174, 0.6);
+}
+
+/* Base Delete Button */
+button.btn-delete { 
+  background: var(--danger); 
+  padding: 5px 10px; 
+  clip-path: polygon(20% 0, 100% 0, 100% 80%, 80% 100%, 0 100%, 0 20%);
+}
+/* Brighter Red/Pink for Hover */
+button.btn-delete:hover { 
+  background: #ff5252; 
+  box-shadow: 0 0 15px rgba(255, 82, 82, 0.6);
+}
 
 /* Quest Items */
 .quest-item {
@@ -473,4 +496,63 @@ h1 {
 @keyframes bossBreathe {
   from { box-shadow: 0 0 15px rgba(213, 0, 0, 0.1); }
   to { box-shadow: 0 0 30px rgba(213, 0, 0, 0.3); }
+}
+
+/* =========================================
+   MOBILE RESPONSIVENESS OVERRIDE
+   ========================================= */
+@media screen and (max-width: 640px) {
+  /* 1. Scale down the massive headers */
+  h1 {
+    font-size: 1.8em;
+    margin-bottom: 20px;
+  }
+  
+  /* 2. Reclaim screen space by reducing padding */
+  .app-container {
+    padding: 10px;
+  }
+  .card {
+    padding: 15px;
+  }
+
+  /* 3. Stack the Quest Form inputs vertically */
+  .quest-form {
+    flex-direction: column;
+  }
+  .quest-form input, 
+  .quest-form select, 
+  .quest-form button {
+    width: 100%;
+  }
+
+  /* 4. Fix Quest Items so buttons don't overflow */
+  .quest-actions {
+    margin-top: 12px;
+    flex-wrap: wrap; /* Allows buttons to wrap to a new line if needed */
+    width: 100%;
+  }
+  .quest-actions button {
+    flex: 1; /* Makes the complete/delete buttons stretch evenly */
+    text-align: center;
+  }
+
+  /* 5. Fix Shop & Class Grids from breaking horizontal scroll */
+  /* Reduces the minimum width from 200px to 140px so two fit nicely on a phone */
+  .shop-grid, .class-grid {
+    grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+    gap: 10px;
+  }
+
+  /* 6. Keep System Alert Box from touching the screen edges */
+  .system-alert-box {
+    width: 90%;
+    padding: 20px;
+    font-size: 0.9em; /* Shrink the text slightly */
+  }
+
+  /* 7. Ensure stats grid doesn't overflow */
+  .stats-grid {
+    grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
+  }
 }

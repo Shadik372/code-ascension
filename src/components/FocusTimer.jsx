@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { setInterval, clearInterval } from 'worker-timers';
 
 // --- CONSTANTS ---
 const STUDY_TOTAL = 90 * 60; // 90 minutes
@@ -174,6 +175,7 @@ const FocusTimer = ({ onSessionComplete }) => {
   }, [state]);
 
   // Main Clock Logic
+
   useEffect(() => {
     if (!state.isRunning) return;
 
@@ -190,13 +192,13 @@ const FocusTimer = ({ onSessionComplete }) => {
         // Trigger Final Break
         if (prev.phase === 'study' && nextTime <= 0) {
           playBell();
-          if (onSessionComplete) onSessionComplete(50); // Award 50 XP
+          if (onSessionComplete) onSessionComplete(50);
           return { ...prev, phase: 'final-break', timeLeft: 0, isRunning: false };
         }
 
-        // Break Timer hits 0 (wait for user input)
+        // Break Timer hits 0
         if (prev.phase === 'mid-break' && nextTime <= 0) {
-          if (prev.timeLeft > 0) playBell(); // play once when hitting 0
+          if (prev.timeLeft > 0) playBell(); 
           return { ...prev, timeLeft: 0, isRunning: false };
         }
 
@@ -204,6 +206,7 @@ const FocusTimer = ({ onSessionComplete }) => {
       });
     }, 1000);
 
+    // THIS ALSO USES THE NPM PACKAGE!
     return () => clearInterval(interval);
   }, [state.isRunning, onSessionComplete]);
 
