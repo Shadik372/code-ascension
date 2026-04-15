@@ -91,7 +91,7 @@ const QuestItem = ({ quest, onComplete, onDelete, isActiveList }) => {
         </div>
       </div>
 
-      <div className="flex gap-2 opacity-100 md:opacity-0 md:group-hover:opacity-100 transition-opacity ml-4">
+      <div className="flex gap-2 ml-4">
         {isActiveList && (
           <motion.button
             whileTap={{ scale: 0.95 }}

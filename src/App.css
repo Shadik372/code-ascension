@@ -406,17 +406,7 @@ body::after {
 button {
   position: relative;
   font-family: 'Rajdhani', sans-serif;
-  font-weight: 700;
-  font-size: 1.1em;
-  text-transform: uppercase;
-  letter-spacing: 2px;
-  padding: 12px 20px;
-  border: none;
-  background: var(--accent);
-  color: #fff;
   cursor: pointer;
-  /* Chops the corners off for a sci-fi look */
-  clip-path: polygon(10% 0, 100% 0, 100% 70%, 90% 100%, 0 100%, 0 30%);
   transition: transform 0.2s, box-shadow 0.2s;
   overflow: hidden;
 }
