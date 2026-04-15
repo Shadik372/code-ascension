@@ -1,23 +1,28 @@
 import { motion } from 'framer-motion';
 
 const REWARDS = [
-  { id: 1, name: '15 Min Break', cost: 50, icon: '📺' },
-  { id: 2, name: 'Fancy Coffee', cost: 150, icon: '☕' },
-  { id: 3, name: '1Hr Gaming', cost: 300, icon: '🎮' },
-  { id: 4, name: 'Guilt-Free Nap', cost: 500, icon: '😴' },
+  { id: 1, name: '15 Min Pause', cost: 50, icon: '||' },
+  { id: 2, name: 'Stimulant (Coffee)', cost: 150, icon: 'C8H10N4O2' },
+  { id: 3, name: 'Simulation Run (Game)', cost: 300, icon: '///' },
+  { id: 4, name: 'Deep Sleep Mode', cost: 500, icon: 'Zz' },
 ];
 
 const LootShop = ({ availableGold, onBuyReward }) => {
   return (
-    <div className="bg-white/5 backdrop-blur-xl border border-white/10 rounded-2xl p-6 shadow-xl">
-      <div className="flex justify-between items-end mb-6">
+    <div className="bg-[#050505]/90 backdrop-blur-xl border border-cyan-900/50 p-6 relative overflow-hidden">
+      <div className="absolute top-0 right-0 w-16 h-16 bg-amber-500/5 blur-[50px] pointer-events-none" />
+
+      <div className="flex justify-between items-end mb-8 border-b border-white/10 pb-4">
         <div>
-          <h2 className="text-xl font-bold text-white tracking-wide">🛒 Loot Shop</h2>
-          <p className="text-sm text-slate-400 mt-1">Spend your hard-earned gold.</p>
+          <h2 className="text-lg font-bold text-white tracking-[0.2em] uppercase">Asset Exchange</h2>
+          <p className="text-[10px] text-cyan-500/70 font-mono tracking-widest mt-1 uppercase">Authorized personnel only</p>
         </div>
-        <span className="text-lg font-bold text-amber-400 drop-shadow-[0_0_8px_rgba(251,191,36,0.4)]">
-          {availableGold} 🪙
-        </span>
+        <div className="text-right">
+          <span className="text-[10px] text-white/40 font-mono tracking-widest uppercase block mb-1">Available Credits</span>
+          <span className="text-xl font-mono font-bold text-amber-500 tracking-wider">
+            {availableGold} CR
+          </span>
+        </div>
       </div>
 
       <div className="grid grid-cols-2 gap-4">
@@ -25,32 +30,34 @@ const LootShop = ({ availableGold, onBuyReward }) => {
           const canAfford = availableGold >= reward.cost;
           
           return (
-            <motion.div 
+            <div 
               key={reward.id}
-              whileHover={canAfford ? { y: -2, scale: 1.02 } : {}}
-              className={`flex flex-col items-center p-4 rounded-xl border transition-all ${
+              className={`flex flex-col relative p-4 border transition-all ${
                 canAfford 
-                  ? 'bg-slate-800/40 border-white/10 hover:border-amber-500/50 hover:shadow-[0_0_15px_rgba(245,158,11,0.2)]' 
-                  : 'bg-slate-900/50 border-white/5 opacity-60 grayscale'
+                  ? 'bg-cyan-950/10 border-cyan-500/20 hover:border-amber-500/50 group' 
+                  : 'bg-black/50 border-white/5 opacity-50'
               }`}
             >
-              <span className="text-4xl mb-3 drop-shadow-md">{reward.icon}</span>
-              <h4 className="font-semibold text-slate-200 text-sm text-center mb-1">{reward.name}</h4>
-              <span className="text-amber-400 text-xs font-bold mb-4">{reward.cost} 🪙</span>
+              {canAfford && <div className="absolute top-0 left-0 w-2 h-2 border-t border-l border-amber-500/50 pointer-events-none opacity-0 group-hover:opacity-100 transition-opacity" />}
+              
+              <span className="text-xs font-mono font-bold text-cyan-600 mb-4">{reward.icon}</span>
+              
+              <h4 className="font-bold text-slate-200 text-xs tracking-wider uppercase mb-1">{reward.name}</h4>
+              <span className="text-amber-500 font-mono text-[10px] tracking-widest mb-4 block">COST: {reward.cost}</span>
               
               <motion.button 
-                whileTap={canAfford ? { scale: 0.95 } : {}}
+                whileTap={canAfford ? { scale: 0.98 } : {}}
                 disabled={!canAfford}
                 onClick={() => onBuyReward(reward.cost, reward.name)}
-                className={`w-full py-2 rounded-lg text-xs font-bold tracking-wider uppercase transition-all ${
+                className={`w-full py-2 text-[10px] font-bold tracking-widest uppercase transition-all ${
                   canAfford 
-                    ? 'bg-amber-500/10 text-amber-400 border border-amber-500/30 hover:bg-amber-500/20' 
-                    : 'bg-slate-800 text-slate-500 cursor-not-allowed'
+                    ? 'bg-transparent border border-amber-500/50 text-amber-500 hover:bg-amber-500 hover:text-black' 
+                    : 'bg-white/5 text-white/30 cursor-not-allowed border border-transparent'
                 }`}
               >
-                {canAfford ? 'Purchase' : 'Locked'}
+                {canAfford ? 'Acquire' : 'Locked'}
               </motion.button>
-            </motion.div>
+            </div>
           );
         })}
       </div>

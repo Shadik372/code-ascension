@@ -2,59 +2,95 @@ import { motion } from 'framer-motion';
 
 const Dashboard = ({ level, xp, nextXp, progress, gold, streak, playerClass, prestige }) => {
   return (
-    <div className="relative bg-white/5 backdrop-blur-xl border border-white/10 rounded-2xl p-6 md:p-8 shadow-2xl overflow-hidden">
-      {/* Subtle background glow behind the card */}
-      <div className="absolute -top-24 -right-24 w-48 h-48 bg-purple-500/20 rounded-full blur-3xl pointer-events-none" />
+    <div className="relative bg-[#050505]/90 backdrop-blur-xl border border-cyan-900/50 p-6 md:p-8 shadow-[0_0_30px_rgba(6,182,212,0.1)] overflow-hidden">
+      
+      {/* Animus Blueprint Grid Background */}
+      <div className="absolute inset-0 bg-[linear-gradient(rgba(6,182,212,0.03)_1px,transparent_1px),linear-gradient(90deg,rgba(6,182,212,0.03)_1px,transparent_1px)] bg-[size:30px_30px] pointer-events-none" />
+      
+      {/* Subtle Cyan ambient glow */}
+      <div className="absolute -top-24 -right-24 w-64 h-64 bg-cyan-500/10 rounded-full blur-[100px] pointer-events-none" />
 
-      <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-6 relative z-10">
+      {/* Decorative HUD Corner Brackets */}
+      <div className="absolute top-0 left-0 w-8 h-8 border-t-2 border-l-2 border-cyan-500/40 pointer-events-none" />
+      <div className="absolute bottom-0 right-0 w-8 h-8 border-b-2 border-r-2 border-cyan-500/40 pointer-events-none" />
+
+      <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-8 relative z-10">
         
-        {/* Player Identity */}
-        <div className="flex items-center gap-6">
-          <div className="relative flex items-center justify-center w-20 h-20 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-2xl shadow-[0_0_20px_rgba(99,102,241,0.4)] border border-white/20 text-3xl font-black text-white">
-            {level}
+        {/* Player Identity (Subject Sync) */}
+        <div className="flex items-center gap-8">
+          
+          {/* Diamond Level Indicator */}
+          <div className="relative flex items-center justify-center w-16 h-16">
+            <motion.div 
+              animate={{ rotate: [45, 45, 135, 135, 45] }}
+              transition={{ duration: 10, repeat: Infinity, ease: "linear" }}
+              className="absolute inset-0 border border-cyan-500/30 rotate-45"
+            />
+            <div className="absolute inset-2 bg-cyan-950/50 border border-cyan-400 rotate-45 flex items-center justify-center shadow-[0_0_15px_rgba(6,182,212,0.3)]" />
+            <span className="relative z-10 text-2xl font-black text-cyan-50 font-mono tracking-tighter">
+              {level}
+            </span>
           </div>
+
           <div>
-            <h2 className="text-2xl font-bold text-white tracking-wide">
-              {playerClass === 'None' ? 'Novice' : playerClass}
+            <h2 className="text-xl font-bold text-white tracking-[0.2em] uppercase">
+              {playerClass === 'None' ? 'Unassigned Subject' : playerClass}
             </h2>
-            <p className="text-indigo-300 font-medium text-sm tracking-widest uppercase mt-1">
-              Prestige {prestige > 0 ? `⭐${prestige}` : '0'}
-            </p>
+            <div className="flex items-center gap-2 mt-1">
+              <span className="w-2 h-2 bg-cyan-500 rounded-none animate-pulse" />
+              <p className="text-cyan-500/80 font-mono text-xs tracking-widest uppercase">
+                Sync Level: {prestige > 0 ? `Tier ${prestige}` : 'Base'}
+              </p>
+            </div>
           </div>
         </div>
 
-        {/* Core Stats Grid */}
-        <div className="grid grid-cols-3 gap-4 md:gap-8 w-full md:w-auto">
-          <div className="flex flex-col items-center md:items-start">
-            <span className="text-slate-400 text-xs font-bold uppercase tracking-wider mb-1">Total XP</span>
-            <span className="text-xl font-bold text-white">{xp}</span>
+        {/* Core Stats Grid (Database Style) */}
+        <div className="grid grid-cols-3 gap-6 md:gap-10 w-full md:w-auto font-mono">
+          <div className="flex flex-col items-center md:items-start border-l border-white/10 pl-4">
+            <span className="text-white/40 text-[10px] font-bold uppercase tracking-widest mb-1">Total Data</span>
+            <span className="text-lg font-bold text-white tracking-wider">{xp}</span>
           </div>
-          <div className="flex flex-col items-center md:items-start">
-            <span className="text-slate-400 text-xs font-bold uppercase tracking-wider mb-1">Gold</span>
-            <span className="text-xl font-bold text-amber-400 drop-shadow-[0_0_8px_rgba(251,191,36,0.4)]">{gold} 🪙</span>
+          <div className="flex flex-col items-center md:items-start border-l border-white/10 pl-4">
+            <span className="text-white/40 text-[10px] font-bold uppercase tracking-widest mb-1">Credits</span>
+            <span className="text-lg font-bold text-amber-500/90 tracking-wider drop-shadow-[0_0_5px_rgba(245,158,11,0.3)]">
+              {gold}
+            </span>
           </div>
-          <div className="flex flex-col items-center md:items-start">
-            <span className="text-slate-400 text-xs font-bold uppercase tracking-wider mb-1">Streak</span>
-            <span className="text-xl font-bold text-orange-500 drop-shadow-[0_0_8px_rgba(249,115,22,0.4)]">{streak} 🔥</span>
+          <div className="flex flex-col items-center md:items-start border-l border-white/10 pl-4">
+            <span className="text-white/40 text-[10px] font-bold uppercase tracking-widest mb-1">Sequence</span>
+            <span className="text-lg font-bold text-red-500/90 tracking-wider drop-shadow-[0_0_5px_rgba(239,68,68,0.3)]">
+              {streak}
+            </span>
           </div>
         </div>
       </div>
 
-      {/* Animated Progress Bar */}
-      <div className="mt-8 relative z-10">
-        <div className="flex justify-between text-xs font-bold uppercase tracking-wider text-slate-400 mb-2">
-          <span>XP Progress</span>
-          <span className="text-slate-300">{xp} / {nextXp}</span>
+      {/* Sharp Memory Sync Progress Bar */}
+      <div className="mt-10 relative z-10">
+        <div className="flex justify-between text-[10px] font-bold uppercase tracking-widest text-cyan-500/70 mb-2 font-mono">
+          <span>Memory Synchronization</span>
+          <span className="text-white/70">{xp} / {nextXp}</span>
         </div>
-        <div className="h-3 w-full bg-slate-800/50 rounded-full overflow-hidden border border-white/5 inset-shadow-sm">
+        
+        {/* Progress Track */}
+        <div className="h-1.5 w-full bg-white/5 border-y border-white/10 relative overflow-hidden">
+          {/* Animated Fill */}
           <motion.div 
             initial={{ width: 0 }}
             animate={{ width: `${progress}%` }}
-            transition={{ duration: 1, ease: "easeOut" }}
-            className="h-full bg-gradient-to-r from-indigo-500 via-purple-500 to-cyan-400 shadow-[0_0_15px_rgba(168,85,247,0.6)]"
+            transition={{ duration: 1.5, ease: "easeOut" }}
+            className="absolute top-0 left-0 h-full bg-cyan-400 shadow-[0_0_10px_rgba(34,211,238,0.8)]"
+          />
+          {/* Scanning Line overlay */}
+          <motion.div 
+            animate={{ x: ["-100%", "1000%"] }}
+            transition={{ duration: 2, repeat: Infinity, ease: "linear" }}
+            className="absolute top-0 bottom-0 w-20 bg-gradient-to-r from-transparent via-white/40 to-transparent"
           />
         </div>
       </div>
+      
     </div>
   );
 };
