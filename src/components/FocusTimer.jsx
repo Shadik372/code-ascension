@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { setInterval, clearInterval } from 'worker-timers';
 
@@ -37,7 +37,7 @@ const BreathingGuide = () => (
         opacity: [0.5, 1, 1, 0.5],
       }}
       transition={{
-        duration: 12, // 4s inhale, 4s hold, 4s exhale
+        duration: 12, 
         repeat: Infinity,
         ease: "easeInOut"
       }}
@@ -79,7 +79,6 @@ const RecoveryModal = ({ phase, timeLeft, onContinue, onExtend, onReset }) => {
     { type: 'tips', comp: <ActivityCard icon="👀" title="Eye & Mind Rest" items={["20-20-20 Rule (Look 20ft away)", "Drink a glass of water", "Close your eyes & relax jaw"]} /> }
   ];
 
-  // Rotate activities every 20 seconds during mid-break
   useEffect(() => {
     if (phase !== 'mid-break') return;
     const interval = setInterval(() => {
@@ -155,10 +154,21 @@ const FocusTimer = ({ onSessionComplete }) => {
     const saved = localStorage.getItem('ca-smart-timer');
     if (saved) {
       const parsed = JSON.parse(saved);
-      // Smart Resume logic: calculate offline time
       if (parsed.isRunning) {
         const elapsed = Math.floor((Date.now() - parsed.lastUpdate) / 1000);
         let newTime = parsed.timeLeft - elapsed;
+        
+        // BUGFIX 3: Catch Offline Break Skipping
+        if (parsed.phase === 'study' && parsed.timeLeft > MID_BREAK_TRIGGER && newTime <= MID_BREAK_TRIGGER) {
+          return {
+            ...parsed,
+            phase: 'mid-break',
+            timeLeft: RECOVERY_TIME, 
+            isRunning: false, // Auto-pause so they don't miss the break while away
+            lastUpdate: Date.now()
+          };
+        }
+
         if (newTime < 0) newTime = 0;
         return { ...parsed, timeLeft: newTime, lastUpdate: Date.now() };
       }
@@ -169,13 +179,11 @@ const FocusTimer = ({ onSessionComplete }) => {
 
   const [isFocusMode, setIsFocusMode] = useState(false);
 
-  // Sync to LocalStorage
   useEffect(() => {
     localStorage.setItem('ca-smart-timer', JSON.stringify({ ...state, lastUpdate: Date.now() }));
   }, [state]);
 
   // Main Clock Logic
-
   useEffect(() => {
     if (!state.isRunning) return;
 
@@ -183,30 +191,29 @@ const FocusTimer = ({ onSessionComplete }) => {
       setState((prev) => {
         const nextTime = prev.timeLeft - 1;
 
-        // Trigger Mid-Break
-        if (prev.phase === 'study' && nextTime === MID_BREAK_TRIGGER) {
+        // BUGFIX 1: Safe boundary crossing (<=) instead of strict exact match (===)
+        if (prev.phase === 'study' && prev.timeLeft > MID_BREAK_TRIGGER && nextTime <= MID_BREAK_TRIGGER) {
           playBell();
-          return { ...prev, phase: 'mid-break', timeLeft: RECOVERY_TIME, isRunning: true };
+          return { ...prev, phase: 'mid-break', timeLeft: RECOVERY_TIME, isRunning: true, lastUpdate: Date.now() };
         }
 
         // Trigger Final Break
         if (prev.phase === 'study' && nextTime <= 0) {
           playBell();
           if (onSessionComplete) onSessionComplete(50);
-          return { ...prev, phase: 'final-break', timeLeft: 0, isRunning: false };
+          return { ...prev, phase: 'final-break', timeLeft: 0, isRunning: false, lastUpdate: Date.now() };
         }
 
         // Break Timer hits 0
         if (prev.phase === 'mid-break' && nextTime <= 0) {
           if (prev.timeLeft > 0) playBell(); 
-          return { ...prev, timeLeft: 0, isRunning: false };
+          return { ...prev, timeLeft: 0, isRunning: false, lastUpdate: Date.now() };
         }
 
         return { ...prev, timeLeft: nextTime, lastUpdate: Date.now() };
       });
     }, 1000);
 
-    // THIS ALSO USES THE NPM PACKAGE!
     return () => clearInterval(interval);
   }, [state.isRunning, onSessionComplete]);
 
@@ -227,11 +234,25 @@ const FocusTimer = ({ onSessionComplete }) => {
 
   const mins = Math.floor(state.timeLeft / 60).toString().padStart(2, '0');
   const secs = (state.timeLeft % 60).toString().padStart(2, '0');
-  const progressPercent = ((STUDY_TOTAL - state.timeLeft) / STUDY_TOTAL) * 100;
+  
+  // BUGFIX 2: Smart Progress Ring Math
+  let progressPercent = 0;
+  if (state.phase === 'study') {
+    progressPercent = ((STUDY_TOTAL - state.timeLeft) / STUDY_TOTAL) * 100;
+  } else if (state.phase === 'mid-break') {
+    // Shrinks during the break to act as a countdown
+    progressPercent = Math.min(100, (state.timeLeft / RECOVERY_TIME) * 100);
+  } else {
+    progressPercent = 100;
+  }
 
-  // Render Wrapper (Handles Focus Mode full-screen)
+  // Determine Ring Color based on Phase
+  const ringColor = state.phase === 'mid-break' 
+    ? 'text-teal-400 drop-shadow-[0_0_8px_rgba(45,212,191,0.5)]' 
+    : 'text-indigo-500 drop-shadow-[0_0_8px_rgba(99,102,241,0.5)]';
+
   const wrapperClasses = isFocusMode 
-    ? "fixed inset-0 z-40 bg-slate-950 flex items-center justify-center p-8"
+    ? "fixed inset-0 z-40 bg-[#050505] flex items-center justify-center p-8"
     : "relative bg-white/5 backdrop-blur-xl border border-white/10 rounded-2xl p-6 md:p-8 shadow-2xl overflow-hidden";
 
   return (
@@ -249,13 +270,12 @@ const FocusTimer = ({ onSessionComplete }) => {
       </AnimatePresence>
 
       <div className={wrapperClasses}>
-        {/* Ambient Glow */}
         <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full h-32 bg-indigo-500/10 blur-[100px] pointer-events-none" />
 
         <div className={`flex flex-col items-center justify-center relative z-10 ${isFocusMode ? 'scale-150' : ''}`}>
           <div className="flex items-center justify-between w-full mb-6">
             <h2 className="text-sm font-bold tracking-widest uppercase text-slate-400 flex items-center gap-2">
-              <span className="w-2 h-2 rounded-full bg-indigo-500 animate-pulse" />
+              <span className={`w-2 h-2 rounded-full animate-pulse ${state.phase === 'mid-break' ? 'bg-teal-400' : 'bg-indigo-500'}`} />
               Smart Focus Protocol
             </h2>
             <button 
@@ -266,29 +286,27 @@ const FocusTimer = ({ onSessionComplete }) => {
             </button>
           </div>
 
-          {/* Radial Progress / Timer Display */}
           <div className="relative flex items-center justify-center w-64 h-64 mb-8">
             <svg className="absolute inset-0 w-full h-full -rotate-90">
               <circle cx="128" cy="128" r="120" stroke="currentColor" strokeWidth="4" fill="transparent" className="text-slate-800" />
               <motion.circle 
                 cx="128" cy="128" r="120" 
                 stroke="currentColor" strokeWidth="4" fill="transparent" 
-                strokeDasharray="754" // 2 * pi * 120
+                strokeDasharray="754" 
                 strokeDashoffset={754 - (754 * progressPercent) / 100}
-                className="text-indigo-500 drop-shadow-[0_0_8px_rgba(99,102,241,0.5)] transition-all duration-1000 ease-linear"
+                className={`transition-all duration-1000 ease-linear ${ringColor}`}
               />
             </svg>
             <div className="flex flex-col items-center">
               <span className="text-6xl font-black font-mono text-transparent bg-clip-text bg-gradient-to-b from-white to-slate-400 drop-shadow-md">
                 {mins}:{secs}
               </span>
-              <span className="text-indigo-400 font-medium tracking-widest text-xs uppercase mt-2">
-                {state.phase === 'study' ? (state.timeLeft <= MID_BREAK_TRIGGER ? 'Phase 2: Deep Work' : 'Phase 1: Flow State') : 'Resting'}
+              <span className={`${state.phase === 'mid-break' ? 'text-teal-400' : 'text-indigo-400'} font-medium tracking-widest text-xs uppercase mt-2`}>
+                {state.phase === 'study' ? (state.timeLeft <= MID_BREAK_TRIGGER ? 'Phase 2: Deep Work' : 'Phase 1: Flow State') : 'Recovery Phase'}
               </span>
             </div>
           </div>
 
-          {/* Controls */}
           <div className="flex gap-4 w-full max-w-xs">
             <button 
               onClick={toggleTimer}
